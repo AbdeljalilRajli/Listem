@@ -3,11 +3,29 @@ import { TodoForm } from './TodoForm';
 import { Todo } from './Todo';
 import { v4 as uuidv4 } from 'uuid';
 import { EditTodoForm } from './EditTodoForm';
+import { useEffect } from 'react';
 uuidv4();
+
+const ITEM_HEIGHT = 120; 
 
 export const TodoWrapper = () => {
 
   const [todos, setTodos] = useState([])
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(0);
+
+  useEffect(() => {
+    
+    const availableHeight = window.innerHeight - 20; 
+    setPageSize(Math.floor(availableHeight / ITEM_HEIGHT));
+ 
+    window.addEventListener('resize', () => {
+      setPageSize(Math.floor(availableHeight / ITEM_HEIGHT));
+    });
+
+    return () => window.removeEventListener('resize', () => {});
+  }, []);
 
   const addTodo = todo => {
     setTodos([...todos, {id: uuidv4(), task: todo, completed: false, isEditing: false}])
@@ -30,11 +48,28 @@ export const TodoWrapper = () => {
     setTodos(todos.map(todo => todo.id === id ? {...todo, task, isEditing: !todo.isEditing} : todo))
   }
 
+  const goToNextPage = () => {
+    if (currentPage < Math.ceil(todos.length / pageSize)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+
   return (
     <div className='TodoWrapper'>
       <h1>Get Thnings Done!</h1>
         <TodoForm addTodo={addTodo}/>
-        {todos.map((todo, index) => (
+
+
+        {todos.slice(startIndex, endIndex).map((todo, index) => (
           todo.isEditing ? (
             <EditTodoForm editTodo={editTask} task={todo}/>
           ) : (
@@ -42,6 +77,13 @@ export const TodoWrapper = () => {
           )
           
         ))}
+
+        <button className='PreviousBtn' onClick={goToPreviousPage} disabled={currentPage === 1}>
+          Previous
+        </button>
+        <button className='NextBtn' onClick={goToNextPage} disabled={currentPage === Math.ceil(todos.length / pageSize)}>
+          Next
+        </button>
         
     </div>
   )

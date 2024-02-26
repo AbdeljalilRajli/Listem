@@ -5,11 +5,18 @@ export const TodoForm = ({addTodo}) => {
     const [value, setValue] = useState("")
 
     const handleSubmit = e => {
-        e.preventDefault();
+      e.preventDefault();
 
-        addTodo(value)
+      const trimmedValue = value.trim();
 
-        setValue("")
+      if (trimmedValue === '') {
+        alert('Please enter a task description');
+        return; 
+      }
+  
+      addTodo(trimmedValue);
+  
+      setValue('');
     }
 
   return (
