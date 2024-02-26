@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 uuidv4();
 
 const ITEM_HEIGHT = 120; 
+const MIN_TASKS_FOR_PAGINATION = 5;
 
 export const TodoWrapper = () => {
 
@@ -63,6 +64,9 @@ export const TodoWrapper = () => {
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
 
+  // Show pagination buttons only when there are enough tasks and more than one page
+  const showPagination = todos.length >= MIN_TASKS_FOR_PAGINATION && Math.ceil(todos.length / pageSize) > 1;
+
   return (
     <div className='TodoWrapper'>
       <h1>Get Thnings Done!</h1>
@@ -78,12 +82,17 @@ export const TodoWrapper = () => {
           
         ))}
 
-        <button className='PreviousBtn' onClick={goToPreviousPage} disabled={currentPage === 1}>
-          Previous
-        </button>
-        <button className='NextBtn' onClick={goToNextPage} disabled={currentPage === Math.ceil(todos.length / pageSize)}>
-          Next
-        </button>
+        {/* Conditionally render pagination buttons */}
+        {showPagination && (
+          <>
+            <button className='PreviousBtn' onClick={goToPreviousPage} disabled={currentPage === 1}>
+              Previous
+            </button>
+            <button className='NextBtn' onClick={goToNextPage} disabled={currentPage === Math.ceil(todos.length / pageSize)}>
+              Next
+            </button>
+          </>
+        )}
         
     </div>
   )
